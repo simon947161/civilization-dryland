@@ -1,4 +1,4 @@
-- 👋 Hi, I’m @simon947161
+- 👋 Hi, I’m simon
 - 👀 I’m interested in proposing solutions that contribute to the survival of humanity. 
 - 🌱 I’m currently learning AI and project management and ebviroment management.
 - 💞️ I’m looking to collaborate on sustanable practice on farm, forrest garden and relvant building and equipment design and inovation.
