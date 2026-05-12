@@ -1,59 +1,14 @@
 <!doctype html>
 <html lang="en">
-...
-name: Update demo from issue comment
-
-on:
-  issue_comment:
-    types: [created]
-
-permissions:
-  contents: write
-  issues: read
-
-jobs:
-  update-demo:
-    if: >-
-      contains(github.event.comment.body, '/update-demo') &&
-      github.event.comment.user.login == 'simon947161'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Extract HTML block from comment
-        env:
-          COMMENT_BODY: ${{ github.event.comment.body }}
-        run: |
-          python3 <<'PY'
-          import os
-          import re
-          from pathlib import Path
-
-          body = os.environ["COMMENT_BODY"]
-          match = re.search(r"```html\s*\n(.*?)\n```", body, re.DOTALL | re.IGNORECASE)
-          if not match:
-              raise SystemExit("No fenced ```html code block found in the issue comment.")
-
-          html = match.group(1)
-          Path("docs").mkdir(parents=True, exist_ok=True)
-          Path("demos").mkdir(parents=True, exist_ok=True)
-          Path("docs/index.html").write_text(html, encoding="utf-8")
-          Path("demos/wagga_climate_os_standalone.html").write_text(html, encoding="utf-8")
-          PY
-
-      - name: Commit demo update
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html demos/wagga_climate_os_standalone.html
-          if git diff --cached --quiet; then
-            echo "No demo changes to commit."
-            exit 0
-          fi
-          git commit -m "Update public demo from issue comment"
-          git push
-
-...
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wagga Climate OS — Climate Adaptive Building Prototype</title>
+</head>
+<body>
+  <h1>Wagga Climate OS — Climate Adaptive Building Prototype</h1>
+  <p>Outdoor Buffer Intensity</p>
+  <p>Version: v0.1</p>
+  <p>Not a certified compliance tool</p>
+</body>
 </html>
