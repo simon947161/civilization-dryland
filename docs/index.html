@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wagga Climate OS Standalone Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f2ea;
+      --panel: #ffffff;
+      --panel-soft: #fbf7ef;
+      --ink: #17211d;
+      --muted: #64716a;
+      --line: #ded5c5;
+      --accent: #2f7158;
+      --accent-dark: #214f3e;
+      --amber: #a86528;
+      --red: #a43d36;
+      --green: #2f7a4f;
+      --blue: #315f88;
+      --shadow: 0 16px 40px rgba(30, 26, 20, 0.10);
+      --radius: 18px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(47, 113, 88, 0.18), transparent 32rem),
+        radial-gradient(circle at 100% 18%, rgba(168, 101, 40, 0.14), transparent 34rem),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    header, main, footer {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header { padding: 32px 0 16px; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4.2vw, 4.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .intro {
+      max-width: 930px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1.03rem;
+    }
+
+    .disclaimer {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid #e7b6ae;
+      border-left: 6px solid var(--red);
+      border-radius: 14px;
+      background: #fff7f4;
+      color: #6f2520;
+      font-weight: 750;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(300px, 390px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding: 14px 0 36px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .input-panel {
+      position: sticky;
+      top: 14px;
+      padding: 18px;
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+    }
+
+    .dashboard { display: grid; gap: 16px; }
+
+    .section { padding: 18px; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: -0.015em;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 13px;
+      color: #33423b;
+      font-size: 0.9rem;
+      font-weight: 760;
+    }
+
+    .row-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+    }
+
+    output {
+      color: var(--accent-dark);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      font: inherit;
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffdf8;
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 113, 88, 0.14);
+    }
+
+    input[type="range"] { accent-color: var(--accent); }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 820;
+    }
+
+    button.secondary { background: #665b4c; }
+    button:hover { filter: brightness(1.05); }
+    button:active { transform: translateY(1px); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .cards.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cards.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      min-height: 96px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--panel-soft);
+    }
+
+    .value {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--accent-dark);
+      font-size: 1.72rem;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 760;
+    }
+
+    .bar {
+      width: 100%;
+      height: 10px;
+      margin-top: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e8dfcf;
+      border: 1px solid #d8cdbb;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+    }
+
+    .good { color: var(--green); }
+    .medium { color: var(--amber); }
+    .high { color: var(--red); }
+    .blue { color: var(--blue); }
+    .muted { color: var(--muted); }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f8eddd;
+      color: #514333;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    li + li { margin-top: 7px; }
+
+    .report-box {
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fffdf8;
+      padding: 14px;
+    }
+
+    .report-box p { margin: 0 0 10px; }
+    .report-box p:last-child { margin-bottom: 0; }
+
+    textarea {
+      min-height: 320px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.87rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .copy-grid {
+      display: grid;
+      grid-template-columns: minmax(140px, 220px) 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      padding: 0 0 32px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 980px) {
+      main { grid-template-columns: 1fr; }
+      .input-panel { position: static; max-height: none; }
+      .cards, .cards.two, .cards.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 620px) {
+      header, main, footer { width: min(100% - 20px, 1240px); }
+      .cards, .cards.two, .cards.four, .button-row, .copy-grid { grid-template-columns: 1fr; }
+      .value { font-size: 1.45rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Standalone local dashboard · no external libraries · no server required</p>
+    <h1>Wagga Climate Adaptive Building / Building Climate OS</h1>
+    <p class="intro">A transparent concept-stage dashboard for testing climate pressure, outdoor climate buffer sizing, intervention contribution, rule-based recommendations, and a copyable design-review prompt.</p>
+    <div class="disclaimer">This tool is an early-stage climate-adaptive design exploration prototype. It does not replace NatHERS, BASIX, NCC, Section J, engineering, planning, hydraulic, mechanical, electrical, structural, or ESG compliance assessment.</div>
+  </header>
+
+  <main>
+    <section class="panel input-panel" aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading">1. Project Input Panel</h2>
+
+      <label>
+        Project name
+        <input id="projectName" type="text" value="Wagga Climate Adaptive Building Concept">
+      </label>
+
+      <label>
+        Location profile
+        <select id="locationProfile">
+          <option value="wagga">Wagga Wagga / Riverina hot dry summer</option>
+          <option value="riverinaWinter">Riverina winter stress test</option>
+          <option value="lismoreHumid">Lismore humid coastal comparison</option>
+          <option value="farmBuilding">Large semi-open farm building</option>
+        </select>
+      </label>
+
+      <label>
+        <span class="row-label"><span>Building area m²</span><output id="buildingAreaOut">300</output></span>
+        <input id="buildingArea" type="range" min="50" max="3000" step="10" value="300">
+      </label>
+
+      <label>
+        Building type
+        <select id="buildingType">
+          <option>Residential / mixed-use concept</option>
+          <option>Community building</option>
+          <option>Education / studio building</option>
+          <option>Large semi-open farm building</option>
+          <option>Commercial workplace</option>
+        </select>
+      </label>
+
+      <label>
+        Summer outdoor temperature °C
+        <input id="summerOutdoorTemp" type="number" min="-10" max="60" step="0.1" value="40">
+      </label>
+
+      <label>
+        Night temperature °C
+        <input id="nightTemp" type="number" min="-15" max="45" step="0.1" value="22">
+      </label>
+
+      <label>
+        Winter night temperature °C
+        <input id="winterNightTemp" type="number" min="-20" max="25" step="0.1" value="2">
+      </label>
+
+      <label>
+        Solar radiation W/m²
+        <input id="solarRadiation" type="number" min="0" max="1200" step="10" value="800">
+      </label>
+
+      <label>
+        Wind speed m/s
+        <input id="windSpeed" type="number" min="0" max="30" step="0.1" value="3">
+      </label>
+
+      <label>
+        <span class="row-label"><span>Water availability 0–1</span><output id="waterAvailabilityOut">0.70</output></span>
+        <input id="waterAvailability" type="range" min="0" max="1" step="0.01" value="0.70">
+      </label>
+
+      <label>
+        <span class="row-label"><span>Semi-open factor 0–1</span><output id="semiOpenFactorOut">0.35</output></span>
+        <input id="semiOpenFactor" type="range" min="0" max="1" step="0.01" value="0.35">
+      </label>
+
+      <label>
+        <span class="row-label"><span>AI control level 0–1</span><output id="aiControlLevelOut">0.75</output></span>
+        <input id="aiControlLevel" type="range" min="0" max="1" step="0.01" value="0.75">
+      </label>
+
+      <label>
+        <span class="row-label"><span>Summer target indoor offset °C</span><output id="summerOffsetOut">5.0 cooler</output></span>
+        <input id="summerTargetOffset" type="range" min="0" max="12" step="0.1" value="5">
+      </label>
+
+      <label>
+        <span class="row-label"><span>Winter target indoor offset °C</span><output id="winterOffsetOut">5.0 warmer</output></span>
+        <input id="winterTargetOffset" type="range" min="0" max="12" step="0.1" value="5">
+      </label>
+
+      <div class="button-row">
+        <button id="recalculateBtn" type="button">Recalculate</button>
+        <button id="resetBtn" class="secondary" type="button">Reset to Wagga Default</button>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <section class="panel section" aria-labelledby="baseline-heading">
+        <h2 id="baseline-heading">2. Natural Baseline Summary</h2>
+        <div class="cards three">
+          <div class="card"><span id="heatPressure" class="value">0</span><span class="label">heat pressure score / 100</span><div class="bar"><span id="heatPressureBar"></span></div></div>
+          <div class="card"><span id="solarPressure" class="value">0</span><span class="label">solar pressure score / 100</span><div class="bar"><span id="solarPressureBar"></span></div></div>
+          <div class="card"><span id="evapPressure" class="value">0</span><span class="label">evaporation pressure score / 100</span><div class="bar"><span id="evapPressureBar"></span></div></div>
+          <div class="card"><span id="windPressure" class="value">0</span><span class="label">wind pressure score / 100</span><div class="bar"><span id="windPressureBar"></span></div></div>
+          <div class="card"><span id="winterRisk" class="value">0</span><span class="label">winter heat-loss risk / 100</span><div class="bar"><span id="winterRiskBar"></span></div></div>
+          <div class="card"><span id="comfortRisk" class="value">0</span><span class="label">overall natural comfort risk / 100</span><div class="bar"><span id="comfortRiskBar"></span></div></div>
+        </div>
+        <div id="baselineNotes" class="pill-row"></div>
+      </section>
+
+      <section class="panel section" aria-labelledby="buffer-heading">
+        <h2 id="buffer-heading">3. Outdoor Climate Buffer Recommendation</h2>
+        <div class="cards four">
+          <div class="card"><span id="bufferArea" class="value">0 m²</span><span class="label">recommended outdoor buffer area</span></div>
+          <div class="card"><span id="occr" class="value">0.00</span><span class="label">OCCR: buffer / indoor floor area</span></div>
+          <div class="card"><span id="shadeArea" class="value">0 m²</span><span class="label">recommended shade area</span></div>
+          <div class="card"><span id="waterVolume" class="value">0 m³</span><span class="label">recommended water buffer volume</span></div>
+          <div class="card"><span id="thermalMass" class="value">0 t</span><span class="label">recommended thermal mass</span></div>
+          <div class="card"><span id="earthTube" class="value">0 m</span><span class="label">recommended earth tube length</span></div>
+          <div class="card"><span id="pvCapacity" class="value">0 kW</span><span class="label">recommended PV capacity</span></div>
+          <div class="card"><span id="batteryCapacity" class="value">0 kWh</span><span class="label">recommended battery capacity</span></div>
+        </div>
+        <p class="muted">These are transparent concept formulas only: buffer area scales with comfort risk and semi-open exposure; shade follows solar pressure; water volume is reduced where water availability is low; mass, earth tubes, PV and batteries scale with area and climate stress.</p>
+      </section>
+
+      <section class="panel section" aria-labelledby="intervention-heading">
+        <h2 id="intervention-heading">4. Intervention Contribution Score</h2>
+        <div class="cards four">
+          <div class="card"><span id="shadingContribution" class="value">0</span><span class="label">shading contribution</span></div>
+          <div class="card"><span id="waterContribution" class="value">0</span><span class="label">water contribution</span></div>
+          <div class="card"><span id="thermalContribution" class="value">0</span><span class="label">thermal mass contribution</span></div>
+          <div class="card"><span id="ventilationContribution" class="value">0</span><span class="label">ventilation contribution</span></div>
+          <div class="card"><span id="renewableContribution" class="value">0</span><span class="label">renewable support contribution</span></div>
+          <div class="card"><span id="aiContribution" class="value">0</span><span class="label">AI control contribution</span></div>
+          <div class="card"><span id="overallIntervention" class="value">0</span><span class="label">overall intervention score / 100</span><div class="bar"><span id="overallInterventionBar"></span></div></div>
+        </div>
+      </section>
+
+      <section class="panel section" aria-labelledby="ai-heading">
+        <h2 id="ai-heading">5. AI Recommendation Layer</h2>
+        <ul id="recommendationList"></ul>
+      </section>
+
+      <section class="panel section" aria-labelledby="report-heading">
+        <h2 id="report-heading">6. Lifecycle Concept Report</h2>
+        <div id="lifecycleReport" class="report-box"></div>
+      </section>
+
+      <section class="panel section" aria-labelledby="prompt-heading">
+        <h2 id="prompt-heading">7. Copy-as-Prompt Output</h2>
+        <div class="copy-grid">
+          <button id="copyPromptBtn" type="button">Copy Prompt</button>
+          <span id="copyStatus" class="muted" role="status">Prompt updates after every recalculation.</span>
+        </div>
+        <textarea id="promptOutput" readonly></textarea>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Validation note:</strong> This file is self-contained HTML with embedded CSS and JavaScript. It uses no external APIs, no external libraries, no React, no npm, no Python, and no server.</p>
+  </footer>
+
+  <script>
+    const defaults = {
+      projectName: "Wagga Climate Adaptive Building Concept",
+      locationProfile: "wagga",
+      buildingArea: 300,
+      buildingType: "Residential / mixed-use concept",
+      summerOutdoorTemp: 40,
+      nightTemp: 22,
+      winterNightTemp: 2,
+      solarRadiation: 800,
+      windSpeed: 3,
+      waterAvailability: 0.70,
+      semiOpenFactor: 0.35,
+      aiControlLevel: 0.75,
+      summerTargetOffset: 5,
+      winterTargetOffset: 5
+    };
+
+    const profiles = {
+      wagga: { summerOutdoorTemp: 40, nightTemp: 22, winterNightTemp: 2, solarRadiation: 800, windSpeed: 3, waterAvailability: 0.70, semiOpenFactor: 0.35, aiControlLevel: 0.75, buildingType: "Residential / mixed-use concept" },
+      riverinaWinter: { summerOutdoorTemp: 34, nightTemp: 15, winterNightTemp: -2, solarRadiation: 560, windSpeed: 2.4, waterAvailability: 0.58, semiOpenFactor: 0.25, aiControlLevel: 0.68, buildingType: "Residential / mixed-use concept" },
+      lismoreHumid: { summerOutdoorTemp: 32, nightTemp: 24, winterNightTemp: 8, solarRadiation: 650, windSpeed: 2.1, waterAvailability: 0.90, semiOpenFactor: 0.42, aiControlLevel: 0.70, buildingType: "Community building" },
+      farmBuilding: { summerOutdoorTemp: 39, nightTemp: 20, winterNightTemp: 1, solarRadiation: 850, windSpeed: 4.5, waterAvailability: 0.50, semiOpenFactor: 0.68, aiControlLevel: 0.55, buildingType: "Large semi-open farm building", buildingArea: 1500 }
+    };
+
+    const ids = [
+      "projectName", "locationProfile", "buildingArea", "buildingType", "summerOutdoorTemp", "nightTemp", "winterNightTemp",
+      "solarRadiation", "windSpeed", "waterAvailability", "semiOpenFactor", "aiControlLevel", "summerTargetOffset", "winterTargetOffset",
+      "buildingAreaOut", "waterAvailabilityOut", "semiOpenFactorOut", "aiControlLevelOut", "summerOffsetOut", "winterOffsetOut",
+      "heatPressure", "solarPressure", "evapPressure", "windPressure", "winterRisk", "comfortRisk",
+      "heatPressureBar", "solarPressureBar", "evapPressureBar", "windPressureBar", "winterRiskBar", "comfortRiskBar", "baselineNotes",
+      "bufferArea", "occr", "shadeArea", "waterVolume", "thermalMass", "earthTube", "pvCapacity", "batteryCapacity",
+      "shadingContribution", "waterContribution", "thermalContribution", "ventilationContribution", "renewableContribution", "aiContribution", "overallIntervention", "overallInterventionBar",
+      "recommendationList", "lifecycleReport", "promptOutput", "recalculateBtn", "resetBtn", "copyPromptBtn", "copyStatus"
+    ];
+
+    const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+
+    function numberValue(id) {
+      const value = Number(el[id].value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function rounded(value, digits = 0) {
+      return Number(value).toFixed(digits);
+    }
+
+    function scoreClass(value) {
+      if (value >= 67) return "value high";
+      if (value >= 38) return "value medium";
+      return "value good";
+    }
+
+    function readInputs() {
+      return {
+        projectName: el.projectName.value.trim() || "Untitled Wagga Climate OS Concept",
+        locationProfile: el.locationProfile.options[el.locationProfile.selectedIndex].text,
+        buildingArea: numberValue("buildingArea"),
+        buildingType: el.buildingType.value,
+        summerOutdoorTemp: numberValue("summerOutdoorTemp"),
+        nightTemp: numberValue("nightTemp"),
+        winterNightTemp: numberValue("winterNightTemp"),
+        solarRadiation: numberValue("solarRadiation"),
+        windSpeed: numberValue("windSpeed"),
+        waterAvailability: numberValue("waterAvailability"),
+        semiOpenFactor: numberValue("semiOpenFactor"),
+        aiControlLevel: numberValue("aiControlLevel"),
+        summerTargetOffset: numberValue("summerTargetOffset"),
+        winterTargetOffset: numberValue("winterTargetOffset")
+      };
+    }
+
+    function calculate(input) {
+      const summerTargetIndoor = input.summerOutdoorTemp - input.summerTargetOffset;
+      const winterTargetIndoor = input.winterNightTemp + input.winterTargetOffset;
+      const diurnalSwing = Math.max(0, input.summerOutdoorTemp - input.nightTemp);
+      const heatPressure = clamp((input.summerOutdoorTemp - 24) * 4.2 + input.semiOpenFactor * 18 - input.aiControlLevel * 8, 0, 100);
+      const solarPressure = clamp((input.solarRadiation - 350) / 6.5 + input.semiOpenFactor * 10, 0, 100);
+      const evaporationPressure = clamp((1 - input.waterAvailability) * 70 + Math.max(0, input.summerOutdoorTemp - 32) * 2.4, 0, 100);
+      const windPressure = clamp(input.windSpeed < 1.5 ? 72 - input.windSpeed * 18 : input.windSpeed > 8 ? 40 + (input.windSpeed - 8) * 8 : 28 - input.windSpeed * 2 + input.semiOpenFactor * 24, 0, 100);
+      const winterHeatLossRisk = clamp((winterTargetIndoor - input.winterNightTemp) * 7.5 + input.semiOpenFactor * 42 + Math.max(0, 2 - input.windSpeed) * 8 - input.aiControlLevel * 10, 0, 100);
+      const overallNaturalComfortRisk = clamp(heatPressure * 0.30 + solarPressure * 0.22 + evaporationPressure * 0.14 + windPressure * 0.14 + winterHeatLossRisk * 0.20, 0, 100);
+
+      const occr = clamp(0.18 + overallNaturalComfortRisk / 130 + input.semiOpenFactor * 0.24 - input.waterAvailability * 0.06 - input.aiControlLevel * 0.05, 0.12, 1.25);
+      const recommendedOutdoorBufferArea = input.buildingArea * occr;
+      const recommendedShadeArea = recommendedOutdoorBufferArea * clamp(0.35 + solarPressure / 150, 0.35, 0.95);
+      const recommendedWaterBufferVolume = input.buildingArea * clamp(0.015 + heatPressure / 3600 + solarPressure / 5200, 0.01, 0.08) * clamp(input.waterAvailability, 0.25, 1);
+      const recommendedThermalMassTonnes = input.buildingArea * clamp(0.18 + diurnalSwing / 95 + winterHeatLossRisk / 500, 0.15, 0.65);
+      const recommendedEarthTubeLength = input.buildingArea * clamp(0.08 + heatPressure / 700 + winterHeatLossRisk / 850, 0.06, 0.35);
+      const recommendedPVCapacity = input.buildingArea * clamp(0.035 + solarPressure / 3600 + overallNaturalComfortRisk / 5500, 0.025, 0.12);
+      const recommendedBatteryCapacity = recommendedPVCapacity * clamp(1.6 + overallNaturalComfortRisk / 65 + input.aiControlLevel * 0.35, 1.4, 3.8);
+
+      const shadingContribution = clamp(solarPressure * 0.18 + recommendedShadeArea / Math.max(1, input.buildingArea) * 22, 0, 20);
+      const waterContribution = clamp(input.waterAvailability * 13 + (100 - evaporationPressure) * 0.05, 0, 18);
+      const thermalMassContribution = clamp(recommendedThermalMassTonnes / Math.max(1, input.buildingArea) * 42 + diurnalSwing * 0.24, 0, 18);
+      const ventilationContribution = clamp((diurnalSwing > 8 ? 7 : 3) + input.windSpeed * 1.6 + input.aiControlLevel * 4 - input.semiOpenFactor * 3, 0, 16);
+      const renewableSupportContribution = clamp(recommendedPVCapacity / Math.max(1, input.buildingArea) * 160 + recommendedBatteryCapacity / Math.max(1, input.buildingArea) * 18, 0, 14);
+      const aiControlContribution = clamp(input.aiControlLevel * 14, 0, 14);
+      const overallInterventionScore = clamp(shadingContribution + waterContribution + thermalMassContribution + ventilationContribution + renewableSupportContribution + aiControlContribution, 0, 100);
+
+      return {
+        summerTargetIndoor,
+        winterTargetIndoor,
+        diurnalSwing,
+        heatPressure,
+        solarPressure,
+        evaporationPressure,
+        windPressure,
+        winterHeatLossRisk,
+        overallNaturalComfortRisk,
+        occr,
+        recommendedOutdoorBufferArea,
+        recommendedShadeArea,
+        recommendedWaterBufferVolume,
+        recommendedThermalMassTonnes,
+        recommendedEarthTubeLength,
+        recommendedPVCapacity,
+        recommendedBatteryCapacity,
+        shadingContribution,
+        waterContribution,
+        thermalMassContribution,
+        ventilationContribution,
+        renewableSupportContribution,
+        aiControlContribution,
+        overallInterventionScore
+      };
+    }
+
+    function generateRecommendations(input, result) {
+      const recommendations = [];
+      const warnings = [];
+
+      if (input.summerOutdoorTemp >= 35 && input.solarRadiation >= 750) {
+        recommendations.push("High outdoor temperature and high solar radiation: strengthen west and north shading, deep verandahs, reflective roof strategy, and deciduous/seasonal shade where suitable.");
+      }
+      if (input.nightTemp < result.summerTargetIndoor - 4) {
+        recommendations.push("Night temperature is well below the summer indoor target: use night purge ventilation, exposed thermal mass charging, and secure automated openings if safe.");
+      }
+      if (input.waterAvailability < 0.4) {
+        recommendations.push("Water availability is low: reduce evaporative cooling priority and focus on shade, drought-resilient planting, soil moisture protection, and non-potable reuse.");
+        warnings.push("Low water availability limits water-based cooling assumptions.");
+      }
+      if (input.semiOpenFactor > 0.55) {
+        recommendations.push("Semi-open factor is high: include closable edges, airlocks, wind baffles, insect/dust screens, and winter operating modes.");
+        warnings.push("High semi-open factor increases infiltration and winter heat-loss risk.");
+      }
+      if (input.aiControlLevel < 0.45) {
+        recommendations.push("AI/control level is low: prepare a manual operation checklist for shade, vents, fans, pumps, night purge, and winter closure routines.");
+        warnings.push("Low control level increases reliance on manual operation.");
+      }
+      if (result.winterHeatLossRisk > 65) {
+        recommendations.push("Winter heat-loss risk is high: protect winter sun, add closable thermal curtains/screens, reduce uncontrolled leakage, and zone the semi-open spaces.");
+      }
+      if (result.windPressure > 60) {
+        recommendations.push("Wind pressure risk is elevated: verify wind comfort, pressure zones, dust exposure, and safe ventilation paths before relying on open-air strategies.");
+      }
+      if (recommendations.length === 0) {
+        recommendations.push("Current settings are moderate: proceed to compare alternative shading, water, thermal mass, ventilation, PV/battery, and operating-control scenarios.");
+      }
+      recommendations.push("Compliance note: use this dashboard only for early design exploration; engage qualified assessors and engineers for formal NatHERS, BASIX, NCC, Section J, planning, engineering and ESG work.");
+
+      return { recommendations, warnings };
+    }
+
+    function setScore(id, value) {
+      el[id].textContent = rounded(value);
+      el[id].className = scoreClass(value);
+      const bar = el[id + "Bar"];
+      if (bar) bar.style.width = `${clamp(value, 0, 100)}%`;
+    }
+
+    function setText(id, text) {
+      el[id].textContent = text;
+    }
+
+    function pill(text) {
+      const node = document.createElement("span");
+      node.className = "pill";
+      node.textContent = text;
+      return node;
+    }
+
+    function renderList(items) {
+      el.recommendationList.innerHTML = "";
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.recommendationList.appendChild(li);
+      });
+    }
+
+    function buildReport(input, result, recommendations, warnings) {
+      const riskText = result.overallNaturalComfortRisk >= 67 ? "high" : result.overallNaturalComfortRisk >= 38 ? "moderate" : "lower";
+      const warningText = warnings.length ? warnings.join(" ") : "No critical concept warnings were triggered by the current rule set.";
+      return `
+        <p><strong>Project summary:</strong> ${input.projectName} is a ${input.buildingArea.toFixed(0)} m² ${input.buildingType.toLowerCase()} using the ${input.locationProfile} profile. Summer target is approximately ${rounded(result.summerTargetIndoor, 1)} °C and winter night target is approximately ${rounded(result.winterTargetIndoor, 1)} °C.</p>
+        <p><strong>Climate risks:</strong> Overall natural comfort risk is <span class="${result.overallNaturalComfortRisk >= 67 ? "high" : result.overallNaturalComfortRisk >= 38 ? "medium" : "good"}">${rounded(result.overallNaturalComfortRisk)}/100 (${riskText})</span>. Heat, solar, evaporation, wind and winter heat-loss pressures should be reviewed together rather than treated as separate systems.</p>
+        <p><strong>Recommended interventions:</strong> Provide about ${rounded(result.recommendedOutdoorBufferArea)} m² of controllable outdoor climate buffer, ${rounded(result.recommendedShadeArea)} m² of shade, ${rounded(result.recommendedWaterBufferVolume, 1)} m³ of water buffering, ${rounded(result.recommendedThermalMassTonnes, 1)} tonnes of thermal mass, ${rounded(result.recommendedEarthTubeLength)} m of earth tube allowance, ${rounded(result.recommendedPVCapacity, 1)} kW PV and ${rounded(result.recommendedBatteryCapacity, 1)} kWh battery capacity as concept placeholders.</p>
+        <p><strong>Compliance preparation notes:</strong> Keep a register of assumptions, drawings, climate files, material build-ups, glazing/shading schedules, water strategy, controls sequence, maintenance responsibility, and consultant review items. This dashboard does not produce certificates or approved compliance evidence.</p>
+        <p><strong>Warnings:</strong> ${warningText}</p>
+        <p><strong>Next steps:</strong> Test at least three options, document the preferred operating mode for summer day, summer night, winter night and shoulder season, then hand the assumptions to qualified planning, engineering, NatHERS/BASIX/NCC/Section J and ESG reviewers as applicable.</p>
+      `;
+    }
+
+    function buildPrompt(input, result, recommendations, warnings, reportText) {
+      return `Wagga Climate OS / Climate Adaptive Building review prompt
+
+DISCLAIMER
+This tool is an early-stage climate-adaptive design exploration prototype. It does not replace NatHERS, BASIX, NCC, Section J, engineering, planning, hydraulic, mechanical, electrical, structural, or ESG compliance assessment.
+
+CURRENT INPUT VALUES
+- Project name: ${input.projectName}
+- Location profile: ${input.locationProfile}
+- Building area: ${rounded(input.buildingArea)} m²
+- Building type: ${input.buildingType}
+- Summer outdoor temperature: ${rounded(input.summerOutdoorTemp, 1)} °C
+- Night temperature: ${rounded(input.nightTemp, 1)} °C
+- Winter night temperature: ${rounded(input.winterNightTemp, 1)} °C
+- Solar radiation: ${rounded(input.solarRadiation)} W/m²
+- Wind speed: ${rounded(input.windSpeed, 1)} m/s
+- Water availability: ${rounded(input.waterAvailability, 2)}
+- Semi-open factor: ${rounded(input.semiOpenFactor, 2)}
+- AI control level: ${rounded(input.aiControlLevel, 2)}
+- Summer target indoor offset: ${rounded(input.summerTargetOffset, 1)} °C
+- Winter target indoor offset: ${rounded(input.winterTargetOffset, 1)} °C
+
+CALCULATED NATURAL BASELINE OUTPUTS
+- Heat pressure score: ${rounded(result.heatPressure)}/100
+- Solar pressure score: ${rounded(result.solarPressure)}/100
+- Evaporation pressure score: ${rounded(result.evaporationPressure)}/100
+- Wind pressure score: ${rounded(result.windPressure)}/100
+- Winter heat-loss risk: ${rounded(result.winterHeatLossRisk)}/100
+- Overall natural comfort risk: ${rounded(result.overallNaturalComfortRisk)}/100
+
+OUTDOOR CLIMATE BUFFER RECOMMENDATION
+- Recommended outdoor buffer area: ${rounded(result.recommendedOutdoorBufferArea)} m²
+- OCCR: ${rounded(result.occr, 2)}
+- Recommended shade area: ${rounded(result.recommendedShadeArea)} m²
+- Recommended water buffer volume: ${rounded(result.recommendedWaterBufferVolume, 1)} m³
+- Recommended thermal mass: ${rounded(result.recommendedThermalMassTonnes, 1)} tonnes
+- Recommended earth tube length: ${rounded(result.recommendedEarthTubeLength)} m
+- Recommended PV capacity: ${rounded(result.recommendedPVCapacity, 1)} kW
+- Recommended battery capacity: ${rounded(result.recommendedBatteryCapacity, 1)} kWh
+
+INTERVENTION CONTRIBUTION SCORE
+- Shading contribution: ${rounded(result.shadingContribution)}/20
+- Water contribution: ${rounded(result.waterContribution)}/18
+- Thermal mass contribution: ${rounded(result.thermalMassContribution)}/18
+- Ventilation contribution: ${rounded(result.ventilationContribution)}/16
+- Renewable support contribution: ${rounded(result.renewableSupportContribution)}/14
+- AI control contribution: ${rounded(result.aiControlContribution)}/14
+- Overall intervention score: ${rounded(result.overallInterventionScore)}/100
+
+WARNINGS
+${warnings.length ? warnings.map((warning) => `- ${warning}`).join("\n") : "- No critical concept warnings triggered by the current rule set."}
+
+AI RECOMMENDATIONS
+${recommendations.map((item) => `- ${item}`).join("\n")}
+
+REPORT SUMMARY
+${reportText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}
+
+Please review this concept-stage dashboard output. Identify passive design priorities, outdoor climate buffer strategies, operational controls, missing assumptions, risks, and the professional compliance preparation tasks required before any formal claim is made.`;
+    }
+
+    function recalculate() {
+      const input = readInputs();
+      const result = calculate(input);
+      const advice = generateRecommendations(input, result);
+
+      el.buildingAreaOut.textContent = rounded(input.buildingArea);
+      el.waterAvailabilityOut.textContent = rounded(input.waterAvailability, 2);
+      el.semiOpenFactorOut.textContent = rounded(input.semiOpenFactor, 2);
+      el.aiControlLevelOut.textContent = rounded(input.aiControlLevel, 2);
+      el.summerOffsetOut.textContent = `${rounded(input.summerTargetOffset, 1)} cooler`;
+      el.winterOffsetOut.textContent = `${rounded(input.winterTargetOffset, 1)} warmer`;
+
+      setScore("heatPressure", result.heatPressure);
+      setScore("solarPressure", result.solarPressure);
+      setScore("evapPressure", result.evaporationPressure);
+      setScore("windPressure", result.windPressure);
+      setScore("winterRisk", result.winterHeatLossRisk);
+      setScore("comfortRisk", result.overallNaturalComfortRisk);
+
+      el.baselineNotes.innerHTML = "";
+      el.baselineNotes.appendChild(pill(`Summer target indoor ≈ ${rounded(result.summerTargetIndoor, 1)} °C`));
+      el.baselineNotes.appendChild(pill(`Winter target indoor ≈ ${rounded(result.winterTargetIndoor, 1)} °C`));
+      el.baselineNotes.appendChild(pill(`Day-night swing ${rounded(result.diurnalSwing, 1)} °C`));
+      el.baselineNotes.appendChild(pill(result.overallNaturalComfortRisk >= 67 ? "High concept risk" : result.overallNaturalComfortRisk >= 38 ? "Moderate concept risk" : "Lower concept risk"));
+
+      setText("bufferArea", `${rounded(result.recommendedOutdoorBufferArea)} m²`);
+      setText("occr", rounded(result.occr, 2));
+      setText("shadeArea", `${rounded(result.recommendedShadeArea)} m²`);
+      setText("waterVolume", `${rounded(result.recommendedWaterBufferVolume, 1)} m³`);
+      setText("thermalMass", `${rounded(result.recommendedThermalMassTonnes, 1)} t`);
+      setText("earthTube", `${rounded(result.recommendedEarthTubeLength)} m`);
+      setText("pvCapacity", `${rounded(result.recommendedPVCapacity, 1)} kW`);
+      setText("batteryCapacity", `${rounded(result.recommendedBatteryCapacity, 1)} kWh`);
+
+      setText("shadingContribution", rounded(result.shadingContribution));
+      setText("waterContribution", rounded(result.waterContribution));
+      setText("thermalContribution", rounded(result.thermalMassContribution));
+      setText("ventilationContribution", rounded(result.ventilationContribution));
+      setText("renewableContribution", rounded(result.renewableSupportContribution));
+      setText("aiContribution", rounded(result.aiControlContribution));
+      setText("overallIntervention", rounded(result.overallInterventionScore));
+      el.overallIntervention.className = result.overallInterventionScore >= 67 ? "value good" : result.overallInterventionScore >= 38 ? "value medium" : "value high";
+      el.overallInterventionBar.style.width = `${clamp(result.overallInterventionScore, 0, 100)}%`;
+
+      renderList(advice.recommendations);
+      const report = buildReport(input, result, advice.recommendations, advice.warnings);
+      el.lifecycleReport.innerHTML = report;
+      el.promptOutput.value = buildPrompt(input, result, advice.recommendations, advice.warnings, report);
+    }
+
+    function applyValues(values) {
+      Object.entries(values).forEach(([key, value]) => {
+        if (el[key]) el[key].value = value;
+      });
+      recalculate();
+    }
+
+    function resetToWaggaDefault() {
+      applyValues(defaults);
+    }
+
+    function applyLocationProfile() {
+      const selected = profiles[el.locationProfile.value];
+      if (!selected) return recalculate();
+      applyValues(selected);
+    }
+
+    ["input", "change"].forEach((eventName) => {
+      ["projectName", "buildingArea", "buildingType", "summerOutdoorTemp", "nightTemp", "winterNightTemp", "solarRadiation", "windSpeed", "waterAvailability", "semiOpenFactor", "aiControlLevel", "summerTargetOffset", "winterTargetOffset"].forEach((id) => {
+        el[id].addEventListener(eventName, recalculate);
+      });
+    });
+
+    el.locationProfile.addEventListener("change", applyLocationProfile);
+    el.recalculateBtn.addEventListener("click", recalculate);
+    el.resetBtn.addEventListener("click", resetToWaggaDefault);
+    el.copyPromptBtn.addEventListener("click", async () => {
+      el.promptOutput.focus();
+      el.promptOutput.select();
+      try {
+        await navigator.clipboard.writeText(el.promptOutput.value);
+        el.copyStatus.textContent = "Prompt copied to clipboard.";
+      } catch (error) {
+        document.execCommand("copy");
+        el.copyStatus.textContent = "Prompt selected. Press Ctrl+C or Cmd+C if your browser blocks clipboard access.";
+      }
+    });
+
+    recalculate();
+  </script>
+</body>
+</html>
