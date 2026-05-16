@@ -3,36 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eco Engine Interface Demo</title>
+  <title>Eco Engine Runtime Console</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="runtime-header">
     <div>
-      <p class="eyebrow">Experimental Regional Ecological Runtime Observation</p>
-      <h1>Eco Engine Interface Demo</h1>
-      <p class="phase">Early interface layer toward ESG++ environmental governance and micro-sensor integration.</p>
+      <p class="eyebrow">Human-in-the-loop Runtime Observation</p>
+      <h1>Eco Engine Runtime Console</h1>
+      <p class="phase">Runtime Operations Phase</p>
     </div>
     <div class="status-panel" aria-label="Runtime status summary">
       <div><span>Current Timestamp</span><strong id="current-timestamp">Loading local time…</strong></div>
-      <div><span>Observation Sites</span><strong>Batlow / Tumut / Wagga Wagga / Alpine</strong></div>
-      <div><span>Prototype Status</span><strong class="status-stable">Human-observation demo</strong></div>
+      <div><span>Active Sites</span><strong>Batlow / Tumut / Wagga Wagga / Alpine</strong></div>
+      <div><span>Runtime Status</span><strong class="status-stable">Observation layer active</strong></div>
     </div>
   </header>
 
   <main>
-    <section class="awareness-grid" aria-label="Public demo introduction">
+    <section class="awareness-grid" aria-label="Local runtime awareness">
       <article class="awareness-card">
-        <span>Purpose:</span>
-        <strong>Visualise regional ecological runtime indicators.</strong>
+        <span>Latest Runtime:</span>
+        <strong id="latest-runtime">Local console session</strong>
       </article>
       <article class="awareness-card">
-        <span>Future Direction:</span>
-        <strong>ESG++ governance and microclimate sensor integration.</strong>
+        <span>Latest Spatial Update:</span>
+        <strong id="latest-spatial-update">Spatial surfaces available</strong>
       </article>
       <article class="awareness-card">
-        <span>Important Note:</span>
-        <strong>This is not an operational engineering model.</strong>
+        <span>Latest Animation Update:</span>
+        <strong id="latest-animation-update">Animation frame stream available</strong>
       </article>
     </section>
 
@@ -42,7 +42,7 @@
           <h2>Eco Balance Lifeline</h2>
           <p>Longitudinal ecological balance movement over time.</p>
         </div>
-        <img class="runtime-image" src="charts/eco_balance_daily.png" alt="Daily Eco Balance lifeline chart">
+        <img class="runtime-image" src="../charts/eco_balance_daily.png" alt="Daily Eco Balance lifeline chart">
       </article>
 
       <article class="card chart-card">
@@ -50,15 +50,15 @@
           <h2>Risk Index Chart</h2>
           <p>Runtime ecological risk observation.</p>
         </div>
-        <img class="runtime-image" src="charts/risk_index_daily.png" alt="Daily ecological risk index chart">
+        <img class="runtime-image" src="../charts/risk_index_daily.png" alt="Daily ecological risk index chart">
       </article>
 
       <article class="card chart-card">
         <div class="card-header">
           <h2>Spatial Ecological Surface</h2>
-          <p>Spatial Eco Balance distribution across selected observation sites.</p>
+          <p>Spatial Eco Balance distribution across active observation sites.</p>
         </div>
-        <img class="runtime-image" src="charts/spatial/eco_balance_site_points_latest.png" alt="Latest spatial Eco Balance point map">
+        <img class="runtime-image" src="../charts/spatial/eco_balance_site_points_latest.png" alt="Latest spatial Eco Balance point map">
       </article>
 
       <article class="card chart-card">
@@ -66,7 +66,7 @@
           <h2>Spatial Runtime Animation</h2>
           <p>Ecological drift movement through accumulated runtime frames.</p>
         </div>
-        <img class="runtime-image animation-frame" src="charts/spatial/eco_balance_spatial_animation_latest.gif" alt="Latest spatial Eco Balance runtime animation">
+        <img class="runtime-image animation-frame" src="../charts/spatial/eco_balance_spatial_animation_latest.gif" alt="Latest spatial Eco Balance runtime animation">
       </article>
     </section>
 
@@ -92,7 +92,7 @@
       <article class="card prompt-card">
         <div class="card-header">
           <h2>Runtime Interpretation Prompt</h2>
-          <p>Copy a human-readable interpretation request for reviewing current visual outputs.</p>
+          <p>Copy a human-readable interpretation request for reviewing current runtime outputs.</p>
         </div>
         <button id="copy-prompt-button" type="button">Copy Runtime Interpretation Prompt</button>
         <p id="copy-status" class="copy-status" role="status" aria-live="polite">Prompt ready.</p>
@@ -100,23 +100,37 @@
 
       <article class="card reports-card">
         <div class="card-header">
-          <h2>What This Demo Shows</h2>
-          <p>This public page shows an early interface for observing regional ecological signals, not a validated field decision tool.</p>
+          <h2>Runtime Reports</h2>
+          <p>Open local runtime evidence files for detailed observation.</p>
         </div>
-        <p class="public-note">The live research direction may later integrate LoRa sensor data, terrain-scale microclimate observations, spatial interpolation, watershed modelling, and ESG++ governance logic.</p>
+        <div class="report-links">
+          <a href="../reports/">Reports Folder</a>
+          <a href="../reports/daily_runtime_summary_latest.md">Daily Runtime Summary</a>
+          <a href="../reports/spatial_drift_summary_latest.md">Spatial Drift Summary</a>
+          <a href="../reports/runtime_alerts_latest.md">Runtime Alerts</a>
+        </div>
       </article>
 
       <article class="card alerts-card">
         <div class="card-header">
-          <h2>Prototype Scope</h2>
-          <p>Current visual indicators are exploratory and intended for communication.</p>
+          <h2>Alert Summary</h2>
+          <p>Simple observation states for ecological runtime review.</p>
         </div>
         <div class="alert-list" id="alert-list">
-          <div class="alert-card warning">RESEARCH <span>Regional ecological runtime observation</span></div>
-          <div class="alert-card critical">LIMITATION <span>Not for operational environmental decision-making</span></div>
-          <div class="alert-card stable">DIRECTION <span>Future ESG++ and sensor integration pathway</span></div>
+          <div class="alert-card warning">WARNING <span>Semi-arid pressure watch</span></div>
+          <div class="alert-card critical">CRITICAL <span>No critical runtime alert detected</span></div>
+          <div class="alert-card stable">STABLE <span>Recovery signals available for review</span></div>
         </div>
+        <p id="no-alerts-message" class="no-alerts">No active ecological alerts.</p>
       </article>
+    </section>
+
+    <section class="card notes-card" aria-label="Human observation notes">
+      <div class="card-header">
+        <h2>Human Observation Notes</h2>
+        <p>Manual ecological observations for human-in-the-loop runtime interpretation. Notes are not saved in v0.1.</p>
+      </div>
+      <textarea placeholder="Human ecological observations..." aria-label="Human ecological observations"></textarea>
     </section>
   </main>
 
